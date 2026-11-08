@@ -1,0 +1,39 @@
+name: Publish UI plugin directory assets
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.target_commitish }}
+      - name: Publish versioned directory to gh-pages
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_COMMIT: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          version="${RELEASE_TAG##*-}"
+          source="extensions/rancher-ui-pack/${version}"
+          test -f "$source/files.txt"
+          test -f "$source/plugin/package.json"
+          while IFS= read -r file; do test -f "$source/$file"; done < "$source/files.txt"
+          work="$(mktemp -d)"
+          git clone --branch gh-pages "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$work"
+          mkdir -p "$work/extensions/rancher-ui-pack/${version}"
+          cp -R "$source"/* "$work/extensions/rancher-ui-pack/${version}/"
+          git -C "$work" config user.name github-actions[bot]
+          git -C "$work" config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git -C "$work" add "extensions/rancher-ui-pack/${version}"
+          if ! git -C "$work" diff --cached --quiet; then
+            git -C "$work" commit -m "Publish rancher-ui-pack ${version}"
+            git -C "$work" push origin gh-pages
+          fi
