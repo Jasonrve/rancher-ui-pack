@@ -27,7 +27,9 @@ jobs:
           test -f "$source/plugin/package.json"
           while IFS= read -r file; do test -f "$source/$file"; done < "$source/files.txt"
           work="$(mktemp -d)"
-          git clone --branch gh-pages "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$work"
+          git clone "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$work"
+          git -C "$work" checkout --orphan gh-pages
+          git -C "$work" rm -rf . >/dev/null 2>&1 || true
           mkdir -p "$work/extensions/rancher-ui-pack/${version}"
           cp -R "$source"/* "$work/extensions/rancher-ui-pack/${version}/"
           git -C "$work" config user.name github-actions[bot]
