@@ -35,8 +35,10 @@ The package output is generated under `dist-pkg/` and can be served with `yarn s
 ## Install
 
 1. Build the package as above.
-2. Host the generated extension package through an HTTPS endpoint reachable by Rancher.
-3. In Rancher, open **Extensions** and add the hosted extension package/catalog source using the Rancher UI Extensions v3 workflow.
-4. Install **Rancher UI Pack** and reload the dashboard. The Links column appears in Pod, Deployment, DaemonSet, StatefulSet, Job, and CronJob resource tables; rows without valid annotations remain empty.
+2. For Rancher v2.10.2, publish the generated package directory unchanged at a versioned GitHub URL: its `package.json`, `files.txt`, and every asset named in `files.txt` must be available from the same HTTPS directory endpoint. GitHub Actions builds the extension chart/catalog on published GitHub releases and publishes catalog assets to `gh-pages`; the standalone directory endpoint for each release is `https://raw.githubusercontent.com/Jasonrve/rancher-ui-pack/<release-commit>/extensions/rancher-ui-pack/0.1.0/plugin/`.
+3. Use that commit-pinned directory URL as `spec.plugin.endpoint` in a `catalog.cattle.io/v1` `UIPlugin` resource, with plugin name/version from generated package metadata. Do not point this version at a `.tgz`/compressed endpoint; Rancher v2.10.2's `UIPlugin` schema does not support it. Rancher server must reach GitHub over HTTPS; verify backend cache/readiness status, then reload the dashboard. Alternatively install via Rancher's supported Extensions UI and the published Git Helm catalog.
+4. The Links column appears in Pod, Deployment, DaemonSet, StatefulSet, Job, and CronJob resource tables; rows without valid annotations remain empty. Alternatively use Rancher's supported Extensions UI workflow with a Git Helm catalog that packages the extension.
 
 No deployment manifest or Helm chart is needed: this is a browser-side Rancher UI extension, not a cluster workload. Do not install until Platform confirms the live server version and package source policy.
+
+Public source: https://github.com/Jasonrve/rancher-ui-pack
