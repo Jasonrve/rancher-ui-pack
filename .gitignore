@@ -71,3 +71,5 @@ Thumbs.db
 
 # Locally built assets (extensions)
 dist-pkg
+extensions/*/*/plugin
+extensions/*/*/files.txt
