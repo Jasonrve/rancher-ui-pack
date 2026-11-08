@@ -2,6 +2,11 @@ name: Publish UI plugin directory assets
 
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: Extension package version
+        required: true
+        default: "0.1.0"
   release:
     types: [published]
 
@@ -19,10 +24,13 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG: ${{ github.event.release.tag_name }}
+          MANUAL_VERSION: ${{ inputs.version }}
           RELEASE_COMMIT: ${{ github.sha }}
         run: |
           set -euo pipefail
           version="${RELEASE_TAG##*-}"
+          if [[ -z "$RELEASE_TAG" ]]; then version="${MANUAL_VERSION:-}"; fi
+          test -n "$version"
           source="extensions/rancher-ui-pack/${version}"
           test -f "$source/files.txt"
           test -f "$source/plugin/package.json"
