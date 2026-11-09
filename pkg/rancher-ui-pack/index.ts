@@ -9,10 +9,10 @@ export default function(plugin: IPlugin): void {
   // Provide plugin metadata from package.json
   plugin.metadata = require('./package.json');
 
-  // Rancher 2.7.2+ ResourceTable API; match all common workload kinds.
+  // Rancher 2.8+ ResourceTable API uses Kubernetes resource IDs; match all common workloads.
   plugin.addTableColumn(
     TableColumnLocation.RESOURCE,
-    { resource: ['pod', 'deployment', 'daemonset', 'statefulset', 'job', 'cronjob'] },
+    { resource: ['pod', 'apps.deployment', 'apps.daemonset', 'apps.statefulset', 'batch.job', 'batch.cronjob'] },
     {
       name:      'rancher-ui-pack-workload-links',
       labelKey:  'rancher-ui-pack.table.links',

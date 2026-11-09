@@ -33,4 +33,20 @@ describe('extension entry point', () => {
 
     expect(plugin.metadata).toStrictEqual(packageJson);
   });
+
+  it('registers the workload Links column for fully qualified Rancher resource IDs', () => {
+    const plugin = mockPlugin();
+
+    extension(plugin);
+
+    expect(plugin.addTableColumn).toHaveBeenCalledWith(
+      'resource-list',
+      { resource: ['pod', 'apps.deployment', 'apps.daemonset', 'apps.statefulset', 'batch.job', 'batch.cronjob'] },
+      expect.objectContaining({
+        name:      'rancher-ui-pack-workload-links',
+        labelKey:  'rancher-ui-pack.table.links',
+        formatter: 'WorkloadLinks',
+      })
+    );
+  });
 });
